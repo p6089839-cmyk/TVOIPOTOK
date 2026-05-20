@@ -17,7 +17,7 @@
             font-size: 16px;
             line-height: 1.4;
         }
-        /* Мобильное меню */
+        /* Мобильное меню - по умолчанию скрыто */
         .sidebar {
             position: fixed;
             left: 0;
@@ -28,11 +28,22 @@
             color: white;
             overflow-y: auto;
             z-index: 100;
-            transform: translateX(-100%);
             transition: transform 0.3s ease;
         }
-        .sidebar.open {
-            transform: translateX(0);
+        /* На компьютере меню ВСЕГДА видно */
+        @media (min-width: 768px) {
+            .sidebar {
+                transform: translateX(0) !important;
+            }
+        }
+        /* На телефоне меню скрыто */
+        @media (max-width: 767px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
         }
         .sidebar-header {
             padding: 20px;
@@ -50,12 +61,22 @@
             transition: 0.2s;
             font-size: 14px;
         }
-        .menu-item:active { background: #2d2d44; }
+        .menu-item:hover { background: #2d2d44; }
         .menu-item.active { background: #667eea; color: white; }
         .main-content {
             padding: 15px;
             min-height: 100vh;
             width: 100%;
+        }
+        /* На компьютере контент сдвинут */
+        @media (min-width: 768px) {
+            .main-content {
+                margin-left: 280px;
+                padding: 20px 30px;
+            }
+            .mobile-menu-btn {
+                display: none !important;
+            }
         }
         /* Карточки */
         .card {
@@ -92,13 +113,10 @@
             font-size: 16px;
             font-weight: 500;
             margin: 4px;
-            width: auto;
-            touch-action: manipulation;
         }
         button:active { opacity: 0.8; }
         button.danger { background: #e53e3e; }
         button.success { background: #48bb78; }
-        button.warning { background: #f59e0b; }
         .courses-grid {
             display: grid;
             grid-template-columns: 1fr;
@@ -115,7 +133,7 @@
             cursor: pointer;
             transition: 0.2s;
         }
-        .course-card:active { transform: scale(0.98); background: #e9ecef; }
+        .course-card:active { transform: scale(0.98); }
         .course-title { font-size: 17px; font-weight: 600; margin: 8px 0; }
         .lesson-item {
             background: #f1f3f4;
@@ -220,11 +238,20 @@
             align-items: center;
             justify-content: center;
         }
+        /* На телефоне показываем кнопку меню */
+        @media (max-width: 767px) {
+            .mobile-menu-btn {
+                display: flex;
+            }
+        }
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
             margin-bottom: 16px;
+        }
+        @media (min-width: 768px) {
+            .stats-grid { grid-template-columns: repeat(4, 1fr); }
         }
         .stats-card {
             background: #f8f9fa;
@@ -260,13 +287,6 @@
             from { transform: translateY(100%); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
-        input, textarea, select, button { font-size: 16px; }
-        @media (min-width: 768px) {
-            .sidebar { transform: translateX(0) !important; }
-            .main-content { margin-left: 280px; padding: 20px 30px; }
-            .mobile-menu-btn { display: none; }
-            .stats-grid { grid-template-columns: repeat(4, 1fr); }
-        }
     </style>
 </head>
 <body>
@@ -284,7 +304,7 @@
 <div class="main-content" id="mainContent"></div>
 
 <script>
-    // ========== ДАННЫЕ ==========
+    // ========== ДАННЫЕ (полная версия с админкой) ==========
     function getUsers() {
         let users = localStorage.getItem('tp_users');
         if (!users) {
@@ -342,62 +362,7 @@
         setTimeout(() => notif.remove(), 3000);
     }
 
-    function addAchievement(userId, achievement) {
-        let users = getUsers();
-        let user = users.find(u => u.id === userId);
-        if (!user.achievements) user.achievements = [];
-        if (!user.achievements.find(a => a.name === achievement.name)) {
-            user.achievements.push(achievement);
-            saveUsers(users);
-            if (userId === currentUser?.id) showNotification('🏆 Получено достижение: ' + achievement.name + '!');
-        }
-    }
-
-    function checkAchievements(userId) {
-        let users = getUsers();
-        let user = users.find(u => u.id === userId);
-        if (!user.stats) return;
-        let completed = 0;
-        if (user.stats) for (let c in user.stats) if (user.stats[c].lessons) for (let l in user.stats[c].lessons) if (user.stats[c].lessons[l].completed) completed++;
-        let coursesCount = user.courses ? user.courses.length : 0;
-        let homeworksCount = user.homeworks ? user.homeworks.filter(h => h.status === 'done').length : 0;
-        if (completed >= 1 && (!user.achievements || !user.achievements.find(a => a.name === 'Первый шаг'))) addAchievement(userId, { name: 'Первый шаг', icon: '🎯' });
-        if (completed >= 5 && (!user.achievements || !user.achievements.find(a => a.name === 'Усердный ученик'))) addAchievement(userId, { name: 'Усердный ученик', icon: '📚' });
-        if (completed >= 10 && (!user.achievements || !user.achievements.find(a => a.name === 'Мастер'))) addAchievement(userId, { name: 'Мастер', icon: '🏆' });
-        if (coursesCount >= 2 && (!user.achievements || !user.achievements.find(a => a.name === 'Эрудит'))) addAchievement(userId, { name: 'Эрудит', icon: '🎓' });
-        if (homeworksCount >= 3 && (!user.achievements || !user.achievements.find(a => a.name === 'Отличник'))) addAchievement(userId, { name: 'Отличник', icon: '⭐' });
-    }
-
-    function updateLessonTime(courseId, lessonId, secondsToAdd) {
-        if (!currentUser || currentUser.role === 'admin') return;
-        let users = getUsers();
-        let idx = users.findIndex(u => u.id === currentUser.id);
-        if (!users[idx].stats) users[idx].stats = {};
-        if (!users[idx].stats[courseId]) users[idx].stats[courseId] = { totalTime: 0, lessons: {} };
-        if (!users[idx].stats[courseId].lessons[lessonId]) users[idx].stats[courseId].lessons[lessonId] = { time: 0, completed: false };
-        users[idx].stats[courseId].lessons[lessonId].time += secondsToAdd;
-        users[idx].stats[courseId].totalTime += secondsToAdd;
-        saveUsers(users);
-        currentUser = users[idx];
-        sessionStorage.setItem('tp_user', JSON.stringify(currentUser));
-    }
-
-    function markLessonCompleted(courseId, lessonId) {
-        if (!currentUser || currentUser.role === 'admin') return;
-        let users = getUsers();
-        let idx = users.findIndex(u => u.id === currentUser.id);
-        if (!users[idx].stats) users[idx].stats = {};
-        if (!users[idx].stats[courseId]) users[idx].stats[courseId] = { totalTime: 0, lessons: {} };
-        if (!users[idx].stats[courseId].lessons[lessonId]) users[idx].stats[courseId].lessons[lessonId] = { time: 0, completed: false };
-        users[idx].stats[courseId].lessons[lessonId].completed = true;
-        saveUsers(users);
-        currentUser = users[idx];
-        sessionStorage.setItem('tp_user', JSON.stringify(currentUser));
-        checkAchievements(currentUser.id);
-        showNotification('✅ Урок пройден!');
-    }
-
-    // ========== АВТОРИЗАЦИЯ (без подсказок) ==========
+    // ========== АВТОРИЗАЦИЯ ==========
     function renderAuth() {
         let main = document.getElementById('mainContent');
         main.innerHTML = '<div style="display:flex; justify-content:center; align-items:center; min-height:80vh;"><div class="card" style="max-width:400px; width:100%;"><div class="card-header">🎓 Твой Поток</div><div id="authForm"><div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="Введите email"></div><div class="form-group"><label>Пароль</label><input type="password" id="loginPassword" placeholder="Введите пароль"></div><button onclick="doLogin()" style="width:100%;">Войти</button></div><div style="text-align:center; margin-top:15px;"><a href="#" onclick="showRegisterForm()" style="color:#667eea;">Нет аккаунта? Зарегистрироваться</a></div></div></div>';
@@ -444,7 +409,9 @@
     }
     
     function toggleSidebar() { 
-        document.getElementById('sidebar').classList.toggle('open'); 
+        if (window.innerWidth < 768) {
+            document.getElementById('sidebar').classList.toggle('open'); 
+        }
     }
 
     // ========== ОСНОВНОЕ ==========
@@ -461,7 +428,13 @@
         renderView();
     }
     
-    function setView(view) { currentView = view; renderApp(); if (window.innerWidth < 768) toggleSidebar(); }
+    function setView(view) { 
+        currentView = view; 
+        renderApp(); 
+        if (window.innerWidth < 768) {
+            document.getElementById('sidebar').classList.remove('open');
+        }
+    }
     
     function renderView() {
         let main = document.getElementById('mainContent');
@@ -518,7 +491,6 @@
                 saveUsers(users);
                 currentUser = users[idx];
                 sessionStorage.setItem('tp_user', JSON.stringify(currentUser));
-                checkAchievements(currentUser.id);
                 showNotification('Курс оплачен и добавлен!');
                 setView('mycourses');
             } else { showNotification('Курс уже у вас', 'warning'); }
@@ -574,8 +546,32 @@
         if (modal) modal.remove();
     }
     
+    function updateLessonTime(courseId, lessonId, secondsToAdd) {
+        if (!currentUser || currentUser.role === 'admin') return;
+        let users = getUsers();
+        let idx = users.findIndex(u => u.id === currentUser.id);
+        if (!users[idx].stats) users[idx].stats = {};
+        if (!users[idx].stats[courseId]) users[idx].stats[courseId] = { totalTime: 0, lessons: {} };
+        if (!users[idx].stats[courseId].lessons[lessonId]) users[idx].stats[courseId].lessons[lessonId] = { time: 0, completed: false };
+        users[idx].stats[courseId].lessons[lessonId].time += secondsToAdd;
+        users[idx].stats[courseId].totalTime += secondsToAdd;
+        saveUsers(users);
+        currentUser = users[idx];
+        sessionStorage.setItem('tp_user', JSON.stringify(currentUser));
+    }
+
     function markCurrentLessonComplete(courseId, lessonId) {
-        markLessonCompleted(courseId, lessonId);
+        if (!currentUser || currentUser.role === 'admin') return;
+        let users = getUsers();
+        let idx = users.findIndex(u => u.id === currentUser.id);
+        if (!users[idx].stats) users[idx].stats = {};
+        if (!users[idx].stats[courseId]) users[idx].stats[courseId] = { totalTime: 0, lessons: {} };
+        if (!users[idx].stats[courseId].lessons[lessonId]) users[idx].stats[courseId].lessons[lessonId] = { time: 0, completed: false };
+        users[idx].stats[courseId].lessons[lessonId].completed = true;
+        saveUsers(users);
+        currentUser = users[idx];
+        sessionStorage.setItem('tp_user', JSON.stringify(currentUser));
+        showNotification('✅ Урок пройден!');
         closeCourseModal(courseId);
         openCourse(courseId);
     }
@@ -610,13 +606,13 @@
     
     function grade(hwId, status) {
         let users = getUsers();
-        for (let i = 0; i < users.length; i++) if (users[i].homeworks) for (let j = 0; j < users[i].homeworks.length; j++) if (users[i].homeworks[j].id === hwId) { users[i].homeworks[j].status = status; if (status === 'done') checkAchievements(users[i].id); break; }
+        for (let i = 0; i < users.length; i++) if (users[i].homeworks) for (let j = 0; j < users[i].homeworks.length; j++) if (users[i].homeworks[j].id === hwId) { users[i].homeworks[j].status = status; break; }
         saveUsers(users);
         showNotification(status === 'done' ? 'ДЗ принято!' : 'ДЗ отклонено');
         setView('homeworks');
     }
 
-    // ========== АДМИН-ПАНЕЛЬ ==========
+    // ========== АДМИН-ПАНЕЛЬ (работает на компьютере) ==========
     function renderAdmin(main) {
         if (currentUser.role !== 'admin') { setView('profile'); return; }
         let courses = getCourses();
@@ -675,7 +671,7 @@
         if (confirm('Удалить урок?')) { let courses = getCourses(); let course = courses.find(c => c.id === courseId); course.lessons = course.lessons.filter(l => l.id !== lessonId); saveCourses(courses); showNotification('Урок удален'); setView('admin'); }
     }
 
-    // ========== УЧЕНИКИ С ОПЛАТАМИ ==========
+    // ========== УЧЕНИКИ ==========
     function renderStudents(main) {
         if (currentUser.role !== 'admin') { setView('profile'); return; }
         let users = getUsers();
@@ -695,43 +691,10 @@
                     html += '<div style="padding:8px; border-bottom:1px solid #eee;">📅 ' + s.payments[j].date + ' — ' + s.payments[j].course + ': ' + formatPrice(s.payments[j].amount) + '</div>';
                 }
             } else { html += '<p>Нет платежей</p>'; }
-            html += '</details><div style="margin-top:10px;"><select id="grantSelect_' + s.id + '"><option value="">Выберите курс</option>';
-            for (let j = 0; j < courses.length; j++) html += '<option value="' + courses[j].id + '">' + courses[j].title + ' (' + formatPrice(courses[j].price) + ')</option>';
-            html += '</select><button onclick="grantAccess(\'' + s.id + '\')">📖 Выдать доступ</button><button class="danger" onclick="revokeAccess(\'' + s.id + '\')">🚫 Забрать всё</button></div></div>';
+            html += '</details></div>';
         }
         html += '</div>';
         main.innerHTML = html;
-    }
-    
-    function grantAccess(userId) {
-        let select = document.getElementById('grantSelect_' + userId);
-        let courseId = select.value;
-        if (!courseId) { alert('Выберите курс'); return; }
-        let courses = getCourses();
-        let course = courses.find(c => c.id === courseId);
-        let users = getUsers();
-        let user = users.find(u => u.id === userId);
-        if (!user.courses) user.courses = [];
-        if (user.courses.indexOf(courseId) === -1) {
-            user.courses.push(courseId);
-            if (!user.payments) user.payments = [];
-            user.payments.push({ date: new Date().toISOString().split('T')[0], amount: course.price, course: course.title });
-            saveUsers(users);
-            checkAchievements(userId);
-            showNotification('Доступ выдан и оплата добавлена');
-            setView('students');
-        } else { showNotification('Уже есть', 'warning'); }
-    }
-    
-    function revokeAccess(userId) {
-        if (confirm('Забрать все доступы?')) {
-            let users = getUsers();
-            let user = users.find(u => u.id === userId);
-            user.courses = [];
-            saveUsers(users);
-            showNotification('Доступы отозваны');
-            setView('students');
-        }
     }
 
     // ========== СТАТИСТИКА ==========
