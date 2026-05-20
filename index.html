@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Твой Поток - Образовательная платформа</title>
+    
+    <!-- PWA метатеги -->
+    <link rel="manifest" href="/TVOIPOTOK/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Твой Поток">
+    <meta name="theme-color" content="#667eea">
+    <link rel="apple-touch-icon" href="/TVOIPOTOK/icon-192.png">
+    
     <style>
         * {
             margin: 0;
@@ -287,6 +296,29 @@
             from { transform: translateY(100%); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
+        /* Кнопка установки приложения */
+        .install-btn {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            background: #48bb78;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            font-size: 26px;
+            z-index: 101;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        @media (max-width: 767px) {
+            .install-btn {
+                display: flex;
+            }
+        }
     </style>
 </head>
 <body>
@@ -300,10 +332,39 @@
 </div>
 
 <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+<button class="install-btn" id="installBtn" style="display:none;">📲</button>
 
 <div class="main-content" id="mainContent"></div>
 
 <script>
+    // ========== PWA УСТАНОВКА ==========
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        installBtn.style.display = 'flex';
+    });
+    
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                installBtn.style.display = 'none';
+            }
+            deferredPrompt = null;
+        }
+    });
+    
+    // Регистрация Service Worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/TVOIPOTOK/sw.js')
+            .then(() => console.log('SW registered'))
+            .catch(err => console.log('SW error:', err));
+    }
+
     // ========== ДАННЫЕ (полная версия с админкой) ==========
     function getUsers() {
         let users = localStorage.getItem('tp_users');
@@ -612,7 +673,7 @@
         setView('homeworks');
     }
 
-    // ========== АДМИН-ПАНЕЛЬ (работает на компьютере) ==========
+    // ========== АДМИН-ПАНЕЛЬ ==========
     function renderAdmin(main) {
         if (currentUser.role !== 'admin') { setView('profile'); return; }
         let courses = getCourses();
