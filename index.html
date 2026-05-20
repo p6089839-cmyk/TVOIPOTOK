@@ -2,55 +2,271 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>Твой Поток - Образовательная платформа</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
-        .sidebar { position: fixed; left: 0; top: 0; width: 260px; height: 100vh; background: #1a1a2e; color: white; overflow-y: auto; z-index: 100; }
-        .sidebar-header { padding: 25px 20px; border-bottom: 1px solid #2d2d44; }
-        .sidebar-header h1 { font-size: 22px; }
-        .sidebar-header p { font-size: 12px; color: #888; margin-top: 5px; }
-        .menu-item { padding: 12px 20px; display: flex; align-items: center; gap: 12px; cursor: pointer; color: #ccc; transition: 0.2s; }
-        .menu-item:hover { background: #2d2d44; color: white; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f0f2f5;
+            font-size: 16px;
+            line-height: 1.4;
+        }
+        /* Мобильное меню */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: #1a1a2e;
+            color: white;
+            overflow-y: auto;
+            z-index: 100;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #2d2d44;
+        }
+        .sidebar-header h1 { font-size: 20px; }
+        .sidebar-header p { font-size: 11px; color: #888; margin-top: 4px; }
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            color: #ccc;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+        .menu-item:active { background: #2d2d44; }
         .menu-item.active { background: #667eea; color: white; }
-        .main-content { margin-left: 260px; padding: 20px 30px; min-height: 100vh; }
-        .card { background: white; border-radius: 16px; padding: 25px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .card-header { font-size: 20px; font-weight: bold; margin-bottom: 20px; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; }
-        button { background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; margin: 5px; }
+        .main-content {
+            padding: 15px;
+            min-height: 100vh;
+            width: 100%;
+        }
+        /* Карточки */
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .card-header {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px; }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            font-size: 16px;
+            -webkit-appearance: none;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            margin: 4px;
+            width: auto;
+            touch-action: manipulation;
+        }
+        button:active { opacity: 0.8; }
         button.danger { background: #e53e3e; }
         button.success { background: #48bb78; }
-        .courses-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .course-card { background: #f8f9fa; border-radius: 12px; padding: 15px; border: 1px solid #e0e0e0; cursor: pointer; transition: 0.2s; }
-        .course-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        .course-title { font-size: 18px; font-weight: bold; margin: 8px 0; }
-        .lesson-item { background: #f1f3f4; padding: 15px; margin-bottom: 15px; border-radius: 10px; }
-        .lesson-video { margin: 10px 0; position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; }
-        .lesson-video iframe, .lesson-video video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 8px; }
-        .lesson-file { background: #e8f0fe; padding: 10px; border-radius: 8px; margin: 10px 0; display: flex; align-items: center; gap: 10px; }
-        .homework-box { background: #fff3e0; padding: 12px; margin-top: 10px; border-radius: 8px; border-left: 4px solid #ff9800; }
-        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        button.warning { background: #f59e0b; }
+        .courses-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        @media (min-width: 500px) {
+            .courses-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+        }
+        .course-card {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 16px;
+            border: 1px solid #e0e0e0;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .course-card:active { transform: scale(0.98); background: #e9ecef; }
+        .course-title { font-size: 17px; font-weight: 600; margin: 8px 0; }
+        .lesson-item {
+            background: #f1f3f4;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+        }
+        .lesson-video {
+            margin: 10px 0;
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 12px;
+        }
+        .lesson-video iframe, .lesson-video video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+        }
+        .homework-box {
+            background: #fff3e0;
+            padding: 12px;
+            margin-top: 12px;
+            border-radius: 12px;
+            border-left: 4px solid #ff9800;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+        }
         .modal.open { display: flex; }
-        .modal-content { background: white; border-radius: 16px; max-width: 800px; width: 90%; max-height: 85vh; overflow-y: auto; padding: 25px; }
-        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .user-row { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #eee; flex-wrap: wrap; gap: 10px; }
-        .top-bar { background: white; border-radius: 16px; padding: 15px 25px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .stat-badge { background: #f1f5f9; padding: 6px 14px; border-radius: 30px; font-size: 13px; font-weight: 600; }
-        .mobile-btn { display: none; position: fixed; bottom: 20px; right: 20px; background: #667eea; width: 50px; height: 50px; border-radius: 50%; font-size: 24px; z-index: 101; cursor: pointer; border: none; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stats-card { background: #f8f9fa; padding: 15px; border-radius: 12px; text-align: center; }
-        .stats-number { font-size: 32px; font-weight: bold; color: #667eea; }
-        .stats-label { font-size: 12px; color: #666; margin-top: 5px; }
-        .progress-bar { background: #e0e0e0; border-radius: 10px; height: 8px; overflow: hidden; margin: 8px 0; }
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .user-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .top-bar {
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .stat-badge {
+            background: #f1f5f9;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .mobile-menu-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #667eea;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            font-size: 26px;
+            z-index: 101;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .stats-card {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stats-number { font-size: 24px; font-weight: bold; color: #667eea; }
+        .stats-label { font-size: 11px; color: #666; margin-top: 4px; }
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 6px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
         .progress-fill { background: #48bb78; height: 100%; width: 0%; transition: width 0.3s; }
-        .notification { position: fixed; bottom: 20px; right: 20px; background: #48bb78; color: white; padding: 12px 20px; border-radius: 8px; z-index: 1000; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @media (max-width: 768px) { .sidebar { transform: translateX(-100%); transition: 0.3s; } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; padding: 15px; } .mobile-btn { display: block; } }
-        .badge { display: inline-block; padding: 4px 8px; border-radius: 20px; font-size: 11px; margin-left: 8px; }
-        .badge-gold { background: #fbbf24; color: #1a1a2e; }
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #48bb78;
+            color: white;
+            padding: 12px;
+            border-radius: 12px;
+            z-index: 1000;
+            text-align: center;
+            font-size: 14px;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        input, textarea, select, button { font-size: 16px; }
+        @media (min-width: 768px) {
+            .sidebar { transform: translateX(0) !important; }
+            .main-content { margin-left: 280px; padding: 20px 30px; }
+            .mobile-menu-btn { display: none; }
+            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+        }
     </style>
 </head>
 <body>
@@ -63,7 +279,7 @@
     <div id="menuContainer"></div>
 </div>
 
-<button class="mobile-btn" onclick="toggleSidebar()">☰</button>
+<button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
 
 <div class="main-content" id="mainContent"></div>
 
@@ -73,9 +289,9 @@
         let users = localStorage.getItem('tp_users');
         if (!users) {
             users = [
-                { id: 'admin1', name: 'Администратор', email: 'admin@t.ru', password: 'admin123', role: 'admin', courses: [], homeworks: [], stats: {}, achievements: [] },
-                { id: 'user1', name: 'Анна', email: 'anna@t.ru', password: '123', role: 'student', courses: ['c1'], homeworks: [], stats: {}, achievements: [] },
-                { id: 'user2', name: 'Петр', email: 'petr@t.ru', password: '123', role: 'student', courses: [], homeworks: [], stats: {}, achievements: [] }
+                { id: 'admin1', name: 'Администратор', email: 'admin@t.ru', password: 'admin123', role: 'admin', courses: [], homeworks: [], stats: {}, achievements: [], payments: [] },
+                { id: 'user1', name: 'Анна', email: 'anna@t.ru', password: 'anna123', role: 'student', courses: ['c1'], homeworks: [], stats: {}, achievements: [], payments: [{ date: '2025-01-15', amount: 5000, course: 'Основы психологии' }] },
+                { id: 'user2', name: 'Петр', email: 'petr@t.ru', password: 'petr123', role: 'student', courses: [], homeworks: [], stats: {}, achievements: [], payments: [] }
             ];
             localStorage.setItem('tp_users', JSON.stringify(users));
         }
@@ -87,11 +303,11 @@
         let courses = localStorage.getItem('tp_courses');
         if (!courses) {
             courses = [
-                { id: 'c1', title: 'Основы психологии', desc: 'Введение в психологию, работа с эмоциями', icon: '🧠', lessons: [
+                { id: 'c1', title: 'Основы психологии', desc: 'Введение в психологию, работа с эмоциями', price: 5000, icon: '🧠', lessons: [
                     { id: 'l1', title: 'Что такое психология?', content: 'Психология - наука о психике', homework: 'Напишите 3 факта о психологии', videoUrl: '', fileUrl: '' },
                     { id: 'l2', title: 'Эмоции', content: 'Как управлять эмоциями', homework: 'Опишите 3 эмоции из вашего дня', videoUrl: '', fileUrl: '' }
                 ]},
-                { id: 'c2', title: 'Косметология', desc: 'Уход за кожей лица и тела', icon: '💆', lessons: [
+                { id: 'c2', title: 'Косметология', desc: 'Уход за кожей лица и тела', price: 8000, icon: '💆', lessons: [
                     { id: 'l3', title: 'Типы кожи', content: 'Определение типа кожи', homework: 'Определите свой тип кожи', videoUrl: '', fileUrl: '' }
                 ]}
             ];
@@ -107,68 +323,55 @@
 
     function formatTime(seconds) {
         if (!seconds) return '0 мин';
-        const hours = Math.floor(seconds / 3600);
-        const mins = Math.floor((seconds % 3600) / 60);
-        if (hours > 0) return `${hours} ч ${mins} мин`;
-        return `${mins} мин`;
+        let hours = Math.floor(seconds / 3600);
+        let mins = Math.floor((seconds % 3600) / 60);
+        if (hours > 0) return hours + ' ч ' + mins + ' мин';
+        return mins + ' мин';
+    }
+
+    function formatPrice(price) {
+        return price.toLocaleString('ru-RU') + ' ₽';
     }
 
     function showNotification(message, type) {
-        if (!type) type = 'success';
-        const notif = document.createElement('div');
+        let notif = document.createElement('div');
         notif.className = 'notification';
         notif.style.background = type === 'success' ? '#48bb78' : '#f59e0b';
         notif.innerHTML = message;
         document.body.appendChild(notif);
-        setTimeout(function() { notif.remove(); }, 3000);
+        setTimeout(() => notif.remove(), 3000);
     }
 
     function addAchievement(userId, achievement) {
-        const users = getUsers();
-        const user = users.find(function(u) { return u.id === userId; });
+        let users = getUsers();
+        let user = users.find(u => u.id === userId);
         if (!user.achievements) user.achievements = [];
-        if (!user.achievements.find(function(a) { return a.name === achievement.name; })) {
+        if (!user.achievements.find(a => a.name === achievement.name)) {
             user.achievements.push(achievement);
             saveUsers(users);
-            if (userId === currentUser?.id) {
-                showNotification('🏆 Получено достижение: ' + achievement.name + '!');
-            }
+            if (userId === currentUser?.id) showNotification('🏆 Получено достижение: ' + achievement.name + '!');
         }
     }
 
     function checkAchievements(userId) {
-        const users = getUsers();
-        const user = users.find(function(u) { return u.id === userId; });
+        let users = getUsers();
+        let user = users.find(u => u.id === userId);
         if (!user.stats) return;
-        let completedLessons = 0;
-        if (user.stats) {
-            for (let cId in user.stats) {
-                if (user.stats[cId].lessons) {
-                    for (let lId in user.stats[cId].lessons) {
-                        if (user.stats[cId].lessons[lId].completed) completedLessons++;
-                    }
-                }
-            }
-        }
-        const coursesCount = user.courses ? user.courses.length : 0;
-        const homeworksCount = user.homeworks ? user.homeworks.filter(function(h) { return h.status === 'done'; }).length : 0;
-        
-        if (completedLessons >= 1 && (!user.achievements || !user.achievements.find(function(a) { return a.name === 'Первый шаг'; }))) 
-            addAchievement(userId, { name: 'Первый шаг', desc: 'Пройден первый урок', icon: '🎯' });
-        if (completedLessons >= 5 && (!user.achievements || !user.achievements.find(function(a) { return a.name === 'Усердный ученик'; }))) 
-            addAchievement(userId, { name: 'Усердный ученик', desc: 'Пройдено 5 уроков', icon: '📚' });
-        if (completedLessons >= 10 && (!user.achievements || !user.achievements.find(function(a) { return a.name === 'Мастер'; }))) 
-            addAchievement(userId, { name: 'Мастер', desc: 'Пройдено 10 уроков', icon: '🏆' });
-        if (coursesCount >= 2 && (!user.achievements || !user.achievements.find(function(a) { return a.name === 'Эрудит'; }))) 
-            addAchievement(userId, { name: 'Эрудит', desc: 'Куплено 2 курса', icon: '🎓' });
-        if (homeworksCount >= 3 && (!user.achievements || !user.achievements.find(function(a) { return a.name === 'Отличник'; }))) 
-            addAchievement(userId, { name: 'Отличник', desc: 'Сдано 3 ДЗ', icon: '⭐' });
+        let completed = 0;
+        if (user.stats) for (let c in user.stats) if (user.stats[c].lessons) for (let l in user.stats[c].lessons) if (user.stats[c].lessons[l].completed) completed++;
+        let coursesCount = user.courses ? user.courses.length : 0;
+        let homeworksCount = user.homeworks ? user.homeworks.filter(h => h.status === 'done').length : 0;
+        if (completed >= 1 && (!user.achievements || !user.achievements.find(a => a.name === 'Первый шаг'))) addAchievement(userId, { name: 'Первый шаг', icon: '🎯' });
+        if (completed >= 5 && (!user.achievements || !user.achievements.find(a => a.name === 'Усердный ученик'))) addAchievement(userId, { name: 'Усердный ученик', icon: '📚' });
+        if (completed >= 10 && (!user.achievements || !user.achievements.find(a => a.name === 'Мастер'))) addAchievement(userId, { name: 'Мастер', icon: '🏆' });
+        if (coursesCount >= 2 && (!user.achievements || !user.achievements.find(a => a.name === 'Эрудит'))) addAchievement(userId, { name: 'Эрудит', icon: '🎓' });
+        if (homeworksCount >= 3 && (!user.achievements || !user.achievements.find(a => a.name === 'Отличник'))) addAchievement(userId, { name: 'Отличник', icon: '⭐' });
     }
 
     function updateLessonTime(courseId, lessonId, secondsToAdd) {
         if (!currentUser || currentUser.role === 'admin') return;
-        const users = getUsers();
-        const idx = users.findIndex(function(u) { return u.id === currentUser.id; });
+        let users = getUsers();
+        let idx = users.findIndex(u => u.id === currentUser.id);
         if (!users[idx].stats) users[idx].stats = {};
         if (!users[idx].stats[courseId]) users[idx].stats[courseId] = { totalTime: 0, lessons: {} };
         if (!users[idx].stats[courseId].lessons[lessonId]) users[idx].stats[courseId].lessons[lessonId] = { time: 0, completed: false };
@@ -181,8 +384,8 @@
 
     function markLessonCompleted(courseId, lessonId) {
         if (!currentUser || currentUser.role === 'admin') return;
-        const users = getUsers();
-        const idx = users.findIndex(function(u) { return u.id === currentUser.id; });
+        let users = getUsers();
+        let idx = users.findIndex(u => u.id === currentUser.id);
         if (!users[idx].stats) users[idx].stats = {};
         if (!users[idx].stats[courseId]) users[idx].stats[courseId] = { totalTime: 0, lessons: {} };
         if (!users[idx].stats[courseId].lessons[lessonId]) users[idx].stats[courseId].lessons[lessonId] = { time: 0, completed: false };
@@ -191,210 +394,183 @@
         currentUser = users[idx];
         sessionStorage.setItem('tp_user', JSON.stringify(currentUser));
         checkAchievements(currentUser.id);
-        showNotification('✅ Урок отмечен как пройденный!');
+        showNotification('✅ Урок пройден!');
     }
 
-    // ========== АВТОРИЗАЦИЯ ==========
+    // ========== АВТОРИЗАЦИЯ (без подсказок) ==========
     function renderAuth() {
-        const main = document.getElementById('mainContent');
-        main.innerHTML = '<div style="display:flex; justify-content:center; align-items:center; min-height:80vh;"><div class="card" style="max-width:400px; width:100%;"><div class="card-header">🎓 Твой Поток</div><div style="display:flex; gap:10px; margin-bottom:20px;"><button id="loginBtn" style="flex:1;">Вход</button><button id="registerBtn" style="flex:1; background:#ccc;">Регистрация</button></div><div id="authForm"><div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="admin@t.ru"></div><div class="form-group"><label>Пароль</label><input type="password" id="loginPassword" placeholder="admin123"></div><button onclick="doLogin()" style="width:100%;">Войти</button></div><p style="margin-top:15px; font-size:12px;">Тестовые: admin@t.ru / admin123 | anna@t.ru / 123</p></div></div>';
-        document.getElementById('loginBtn').onclick = function() { showLoginForm(); };
-        document.getElementById('registerBtn').onclick = function() { showRegisterForm(); };
+        let main = document.getElementById('mainContent');
+        main.innerHTML = '<div style="display:flex; justify-content:center; align-items:center; min-height:80vh;"><div class="card" style="max-width:400px; width:100%;"><div class="card-header">🎓 Твой Поток</div><div id="authForm"><div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="Введите email"></div><div class="form-group"><label>Пароль</label><input type="password" id="loginPassword" placeholder="Введите пароль"></div><button onclick="doLogin()" style="width:100%;">Войти</button></div><div style="text-align:center; margin-top:15px;"><a href="#" onclick="showRegisterForm()" style="color:#667eea;">Нет аккаунта? Зарегистрироваться</a></div></div></div>';
     }
-    function showLoginForm() {
-        const form = document.getElementById('authForm');
-        form.innerHTML = '<div class="form-group"><label>Email</label><input type="email" id="loginEmail"></div><div class="form-group"><label>Пароль</label><input type="password" id="loginPassword"></div><button onclick="doLogin()" style="width:100%;">Войти</button>';
-        document.getElementById('loginBtn').style.background = '#667eea';
-        document.getElementById('registerBtn').style.background = '#ccc';
-    }
+    
     function showRegisterForm() {
-        const form = document.getElementById('authForm');
-        form.innerHTML = '<div class="form-group"><label>Имя</label><input type="text" id="regName"></div><div class="form-group"><label>Email</label><input type="email" id="regEmail"></div><div class="form-group"><label>Пароль</label><input type="password" id="regPassword"></div><button onclick="doRegister()" style="width:100%;">Зарегистрироваться</button>';
-        document.getElementById('registerBtn').style.background = '#667eea';
-        document.getElementById('loginBtn').style.background = '#ccc';
+        let main = document.getElementById('mainContent');
+        main.innerHTML = '<div style="display:flex; justify-content:center; align-items:center; min-height:80vh;"><div class="card" style="max-width:400px; width:100%;"><div class="card-header">📝 Регистрация</div><div class="form-group"><label>Имя</label><input type="text" id="regName" placeholder="Ваше имя"></div><div class="form-group"><label>Email</label><input type="email" id="regEmail" placeholder="Email"></div><div class="form-group"><label>Пароль</label><input type="password" id="regPassword" placeholder="Пароль"></div><button onclick="doRegister()" style="width:100%;">Зарегистрироваться</button><div style="text-align:center; margin-top:15px;"><a href="#" onclick="renderAuth()" style="color:#667eea;">Уже есть аккаунт? Войти</a></div></div></div>';
     }
+    
     function doRegister() {
-        var name = document.getElementById('regName').value;
-        var email = document.getElementById('regEmail').value;
-        var password = document.getElementById('regPassword').value;
+        let name = document.getElementById('regName').value;
+        let email = document.getElementById('regEmail').value;
+        let password = document.getElementById('regPassword').value;
         if (!name || !email || !password) { alert('Заполните все поля'); return; }
-        var users = getUsers();
-        if (users.find(function(u) { return u.email === email; })) { alert('Email уже существует'); return; }
-        users.push({ id: Date.now().toString(), name: name, email: email, password: password, role: 'student', courses: [], homeworks: [], stats: {}, achievements: [] });
+        let users = getUsers();
+        if (users.find(u => u.email === email)) { alert('Email уже существует'); return; }
+        users.push({ id: Date.now().toString(), name: name, email: email, password: password, role: 'student', courses: [], homeworks: [], stats: {}, achievements: [], payments: [] });
         saveUsers(users);
-        alert('Регистрация успешна! Войдите');
-        showLoginForm();
+        alert('Регистрация успешна! Теперь войдите');
+        renderAuth();
     }
+    
     function doLogin() {
-        var email = document.getElementById('loginEmail').value;
-        var password = document.getElementById('loginPassword').value;
-        var users = getUsers();
-        var user = users.find(function(u) { return u.email === email && u.password === password; });
-        if (user) { currentUser = user; sessionStorage.setItem('tp_user', JSON.stringify(user)); renderApp(); } 
-        else { alert('Неверный email или пароль'); }
+        let email = document.getElementById('loginEmail').value;
+        let password = document.getElementById('loginPassword').value;
+        let users = getUsers();
+        let user = users.find(u => u.email === email && u.password === password);
+        if (user) { 
+            currentUser = user; 
+            sessionStorage.setItem('tp_user', JSON.stringify(user)); 
+            renderApp(); 
+        } else { 
+            alert('Неверный email или пароль'); 
+        }
     }
+    
     function logout() { 
-        for (var key in activeTimers) { if (activeTimers[key]) clearInterval(activeTimers[key]); }
+        for (let key in activeTimers) if (activeTimers[key]) clearInterval(activeTimers[key]);
         activeTimers = {};
         currentUser = null; 
         sessionStorage.removeItem('tp_user'); 
         renderAuth(); 
     }
-    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+    
+    function toggleSidebar() { 
+        document.getElementById('sidebar').classList.toggle('open'); 
+    }
 
     // ========== ОСНОВНОЕ ==========
     function renderApp() {
         if (!currentUser) { renderAuth(); return; }
-        var isAdmin = currentUser.role === 'admin';
-        var menu = document.getElementById('menuContainer');
+        let isAdmin = currentUser.role === 'admin';
+        let menu = document.getElementById('menuContainer');
         menu.innerHTML = '<div class="menu-item ' + (currentView === 'profile' ? 'active' : '') + '" onclick="setView(\'profile\')">👤 Мой профиль</div>' +
             '<div class="menu-item ' + (currentView === 'courses' ? 'active' : '') + '" onclick="setView(\'courses\')">📚 Все курсы</div>' +
             '<div class="menu-item ' + (currentView === 'mycourses' ? 'active' : '') + '" onclick="setView(\'mycourses\')">🎓 Мои курсы</div>' +
             '<div class="menu-item ' + (currentView === 'homeworks' ? 'active' : '') + '" onclick="setView(\'homeworks\')">📝 ДЗ на проверку</div>' +
-            (isAdmin ? '<div class="menu-item ' + (currentView === 'admin' ? 'active' : '') + '" onclick="setView(\'admin\')">🔧 Админ-панель</div><div class="menu-item ' + (currentView === 'statistics' ? 'active' : '') + '" onclick="setView(\'statistics\')">📊 Статистика</div>' : '') +
+            (isAdmin ? '<div class="menu-item ' + (currentView === 'admin' ? 'active' : '') + '" onclick="setView(\'admin\')">🔧 Админ-панель</div><div class="menu-item ' + (currentView === 'students' ? 'active' : '') + '" onclick="setView(\'students\')">👥 Ученики</div><div class="menu-item ' + (currentView === 'statistics' ? 'active' : '') + '" onclick="setView(\'statistics\')">📊 Статистика</div>' : '') +
             '<div class="menu-item" onclick="logout()">🚪 Выйти</div>';
         renderView();
     }
-    function setView(view) { currentView = view; renderApp(); }
+    
+    function setView(view) { currentView = view; renderApp(); if (window.innerWidth < 768) toggleSidebar(); }
+    
     function renderView() {
-        var main = document.getElementById('mainContent');
+        let main = document.getElementById('mainContent');
         if (currentView === 'profile') renderProfile(main);
         else if (currentView === 'courses') renderAllCourses(main);
         else if (currentView === 'mycourses') renderMyCourses(main);
         else if (currentView === 'homeworks') renderHomeworks(main);
         else if (currentView === 'admin') renderAdmin(main);
+        else if (currentView === 'students') renderStudents(main);
         else if (currentView === 'statistics') renderStatistics(main);
     }
 
     // ========== ПРОФИЛЬ ==========
     function renderProfile(main) {
-        var totalTime = 0;
-        var completedLessons = 0;
-        if (currentUser.stats) {
-            for (var cId in currentUser.stats) {
-                totalTime += currentUser.stats[cId].totalTime || 0;
-                if (currentUser.stats[cId].lessons) {
-                    for (var lId in currentUser.stats[cId].lessons) {
-                        if (currentUser.stats[cId].lessons[lId].completed) completedLessons++;
-                    }
-                }
-            }
-        }
-        var achievements = currentUser.achievements || [];
+        let totalTime = 0, completed = 0;
+        if (currentUser.stats) for (let c in currentUser.stats) { totalTime += currentUser.stats[c].totalTime || 0; if (currentUser.stats[c].lessons) for (let l in currentUser.stats[c].lessons) if (currentUser.stats[c].lessons[l].completed) completed++; }
+        let achievements = currentUser.achievements || [];
+        let totalPaid = currentUser.payments ? currentUser.payments.reduce((sum, p) => sum + p.amount, 0) : 0;
         main.innerHTML = '<div class="top-bar"><div><h2>👋 Привет, ' + currentUser.name + '!</h2><p>' + new Date().toLocaleDateString() + '</p></div><div class="stat-badge">Курсов: ' + (currentUser.courses ? currentUser.courses.length : 0) + '</div></div>' +
             '<div class="stats-grid">' +
             '<div class="stats-card"><div class="stats-number">' + formatTime(totalTime) + '</div><div class="stats-label">Всего времени</div></div>' +
-            '<div class="stats-card"><div class="stats-number">' + completedLessons + '</div><div class="stats-label">Пройдено уроков</div></div>' +
+            '<div class="stats-card"><div class="stats-number">' + completed + '</div><div class="stats-label">Пройдено уроков</div></div>' +
             '<div class="stats-card"><div class="stats-number">' + (currentUser.courses ? currentUser.courses.length : 0) + '</div><div class="stats-label">Курсов</div></div>' +
-            '<div class="stats-card"><div class="stats-number">' + achievements.length + '</div><div class="stats-label">Достижений</div></div>' +
+            '<div class="stats-card"><div class="stats-number">' + (currentUser.role === 'admin' ? 'Админ' : formatPrice(totalPaid)) + '</div><div class="stats-label">' + (currentUser.role === 'admin' ? 'Роль' : 'Оплачено') + '</div></div>' +
             '</div>' +
-            (achievements.length > 0 ? '<div class="card"><div class="card-header">🏆 Мои достижения</div><div style="display:flex; flex-wrap:wrap; gap:10px;">' + achievements.map(function(a) { return '<div style="background:#f8f9fa; padding:10px 15px; border-radius:50px; display:flex; align-items:center; gap:8px;"><span style="font-size:20px;">' + (a.icon || '🏅') + '</span><span>' + a.name + '</span></div>'; }).join('') + '</div></div>' : '') +
-            '<div class="card"><div class="card-header">Личная информация</div>' +
-            '<div class="form-group"><label>Имя</label><input type="text" id="profileName" value="' + currentUser.name + '"></div>' +
-            '<div class="form-group"><label>Email</label><input type="email" value="' + currentUser.email + '" readonly style="background:#f0f0f0;"></div>' +
-            '<button onclick="updateProfile()">Сохранить</button></div>';
+            (achievements.length > 0 ? '<div class="card"><div class="card-header">🏆 Достижения</div><div style="display:flex; flex-wrap:wrap; gap:8px;">' + achievements.map(a => '<div style="background:#f8f9fa; padding:8px 12px; border-radius:40px; display:flex; align-items:center; gap:8px; font-size:13px;"><span>' + (a.icon || '🏅') + '</span><span>' + a.name + '</span></div>').join('') + '</div></div>' : '') +
+            '<div class="card"><div class="card-header">Личная информация</div><div class="form-group"><label>Имя</label><input type="text" id="profileName" value="' + currentUser.name + '"></div><div class="form-group"><label>Email</label><input type="email" value="' + currentUser.email + '" readonly style="background:#f0f0f0;"></div><button onclick="updateProfile()">Сохранить</button></div>';
     }
+    
     function updateProfile() {
-        var newName = document.getElementById('profileName').value;
-        var users = getUsers();
-        var idx = users.findIndex(function(u) { return u.id === currentUser.id; });
+        let newName = document.getElementById('profileName').value;
+        let users = getUsers();
+        let idx = users.findIndex(u => u.id === currentUser.id);
         if (idx !== -1) { users[idx].name = newName; saveUsers(users); currentUser = users[idx]; sessionStorage.setItem('tp_user', JSON.stringify(currentUser)); showNotification('Профиль обновлен'); renderApp(); }
     }
 
     // ========== ВСЕ КУРСЫ ==========
     function renderAllCourses(main) {
-        var courses = getCourses();
-        main.innerHTML = '<div class="card"><div class="card-header">📚 Все курсы</div><div class="courses-grid">' + courses.map(function(c) { 
-            return '<div class="course-card" onclick="buyCourse(\'' + c.id + '\')"><div style="font-size:40px;">' + c.icon + '</div><div class="course-title">' + c.title + '</div><p style="color:#666;">' + c.desc + '</p><p style="font-size:12px;">📖 ' + c.lessons.length + ' уроков</p>' + ((currentUser.courses && currentUser.courses.indexOf(c.id) !== -1) ? '<button class="success" onclick="event.stopPropagation(); openCourse(\'' + c.id + '\')">Учиться</button>' : '<button class="success" onclick="event.stopPropagation(); buyCourse(\'' + c.id + '\')">Получить доступ</button>') + '</div>';
-        }).join('') + '</div></div>';
+        let courses = getCourses();
+        main.innerHTML = '<div class="card"><div class="card-header">📚 Все курсы</div><div class="courses-grid">' + courses.map(c => '<div class="course-card" onclick="buyCourse(\'' + c.id + '\')"><div style="font-size:40px;">' + c.icon + '</div><div class="course-title">' + c.title + '</div><p style="color:#666; font-size:13px;">' + c.desc + '</p><p style="font-size:13px; margin:8px 0;"><strong>' + formatPrice(c.price) + '</strong> | 📖 ' + c.lessons.length + ' уроков</p>' + ((currentUser.courses && currentUser.courses.indexOf(c.id) !== -1) ? '<button class="success" onclick="event.stopPropagation(); openCourse(\'' + c.id + '\')">Учиться</button>' : '<button class="success" onclick="event.stopPropagation(); buyCourse(\'' + c.id + '\')">Купить курс</button>') + '</div>').join('') + '</div></div>';
     }
+    
     function buyCourse(courseId) {
-        var users = getUsers();
-        var idx = users.findIndex(function(u) { return u.id === currentUser.id; });
-        if (!users[idx].courses) users[idx].courses = [];
-        if (users[idx].courses.indexOf(courseId) === -1) { 
-            users[idx].courses.push(courseId); 
-            saveUsers(users); 
-            currentUser = users[idx]; 
-            sessionStorage.setItem('tp_user', JSON.stringify(currentUser)); 
-            checkAchievements(currentUser.id);
-            showNotification('Курс добавлен! Перейдите в "Мои курсы"'); 
-            setView('mycourses'); 
-        } else { showNotification('Курс уже у вас', 'warning'); }
+        let courses = getCourses();
+        let course = courses.find(c => c.id === courseId);
+        if (confirm('Курс "' + course.title + '" стоит ' + formatPrice(course.price) + '. Оплатить?')) {
+            let users = getUsers();
+            let idx = users.findIndex(u => u.id === currentUser.id);
+            if (!users[idx].courses) users[idx].courses = [];
+            if (users[idx].courses.indexOf(courseId) === -1) {
+                users[idx].courses.push(courseId);
+                if (!users[idx].payments) users[idx].payments = [];
+                users[idx].payments.push({ date: new Date().toISOString().split('T')[0], amount: course.price, course: course.title });
+                saveUsers(users);
+                currentUser = users[idx];
+                sessionStorage.setItem('tp_user', JSON.stringify(currentUser));
+                checkAchievements(currentUser.id);
+                showNotification('Курс оплачен и добавлен!');
+                setView('mycourses');
+            } else { showNotification('Курс уже у вас', 'warning'); }
+        }
     }
 
     // ========== МОИ КУРСЫ ==========
     function renderMyCourses(main) {
-        var courses = getCourses();
-        var myCourses = courses.filter(function(c) { return currentUser.courses && currentUser.courses.indexOf(c.id) !== -1; });
+        let courses = getCourses();
+        let myCourses = courses.filter(c => currentUser.courses && currentUser.courses.indexOf(c.id) !== -1);
         if (myCourses.length === 0) { main.innerHTML = '<div class="card"><div class="card-header">Мои курсы</div><p>Нет курсов. Перейдите в "Все курсы"</p></div>'; return; }
-        main.innerHTML = '<div class="card"><div class="card-header">Мои курсы</div><div class="courses-grid">' + myCourses.map(function(c) { return '<div class="course-card" onclick="openCourse(\'' + c.id + '\')"><div style="font-size:40px;">' + c.icon + '</div><div class="course-title">' + c.title + '</div><p style="color:#666;">' + c.desc + '</p><button onclick="event.stopPropagation(); openCourse(\'' + c.id + '\')">Открыть</button></div>'; }).join('') + '</div></div>';
+        main.innerHTML = '<div class="card"><div class="card-header">Мои курсы</div><div class="courses-grid">' + myCourses.map(c => '<div class="course-card" onclick="openCourse(\'' + c.id + '\')"><div style="font-size:40px;">' + c.icon + '</div><div class="course-title">' + c.title + '</div><p style="color:#666; font-size:13px;">' + c.desc + '</p><button onclick="event.stopPropagation(); openCourse(\'' + c.id + '\')">Открыть</button></div>').join('') + '</div></div>';
     }
 
     // ========== ОТКРЫТЬ КУРС ==========
     function openCourse(courseId) {
-        var courses = getCourses();
-        var course = courses.find(function(c) { return c.id === courseId; });
-        
+        let courses = getCourses();
+        let course = courses.find(c => c.id === courseId);
         if (activeTimers[courseId]) clearInterval(activeTimers[courseId]);
-        
-        var modal = document.createElement('div');
+        let modal = document.createElement('div');
         modal.className = 'modal open';
-        var lessonsHtml = '';
-        for (var i = 0; i < course.lessons.length; i++) {
-            var lesson = course.lessons[i];
-            var isCompleted = (currentUser.stats && currentUser.stats[courseId] && currentUser.stats[courseId].lessons && currentUser.stats[courseId].lessons[lesson.id] && currentUser.stats[courseId].lessons[lesson.id].completed) ? true : false;
-            var timeSpent = (currentUser.stats && currentUser.stats[courseId] && currentUser.stats[courseId].lessons && currentUser.stats[courseId].lessons[lesson.id]) ? currentUser.stats[courseId].lessons[lesson.id].time : 0;
-            var videoHtml = '';
-            if (lesson.videoUrl) {
-                var videoUrl = lesson.videoUrl;
-                if (videoUrl.indexOf('youtube.com') !== -1 || videoUrl.indexOf('youtu.be') !== -1) {
-                    var embedUrl = videoUrl.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/');
-                    videoHtml = '<div class="lesson-video"><iframe src="' + embedUrl + '" frameborder="0" allowfullscreen></iframe></div>';
-                } else {
-                    videoHtml = '<div class="lesson-video"><video controls src="' + videoUrl + '"></video></div>';
-                }
+        let lessonsHtml = '';
+        for (let i = 0; i < course.lessons.length; i++) {
+            let l = course.lessons[i];
+            let isCompleted = currentUser.stats && currentUser.stats[courseId] && currentUser.stats[courseId].lessons && currentUser.stats[courseId].lessons[l.id] && currentUser.stats[courseId].lessons[l.id].completed;
+            let timeSpent = currentUser.stats && currentUser.stats[courseId] && currentUser.stats[courseId].lessons && currentUser.stats[courseId].lessons[l.id] ? currentUser.stats[courseId].lessons[l.id].time : 0;
+            let videoHtml = '';
+            if (l.videoUrl) {
+                let vu = l.videoUrl;
+                if (vu.indexOf('youtube.com') !== -1 || vu.indexOf('youtu.be') !== -1) {
+                    let embed = vu.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/');
+                    videoHtml = '<div class="lesson-video"><iframe src="' + embed + '" frameborder="0" allowfullscreen></iframe></div>';
+                } else { videoHtml = '<div class="lesson-video"><video controls src="' + vu + '"></video></div>'; }
             }
-            var fileHtml = '';
-            if (lesson.fileUrl) {
-                fileHtml = '<div class="lesson-file"><span>📎</span><a href="' + lesson.fileUrl + '" target="_blank" style="color:#667eea;">Открыть прикрепленный файл</a></div>';
-            }
-            lessonsHtml += '<div class="lesson-item" id="lesson_' + lesson.id + '">' +
-                '<strong>' + (i+1) + '. ' + lesson.title + '</strong>' +
-                '<p>' + lesson.content + '</p>' +
-                videoHtml +
-                fileHtml +
-                '<div class="homework-box">' +
-                '<strong>📝 Домашнее задание:</strong><br>' + lesson.homework +
-                '<textarea id="hw_' + lesson.id + '" rows="3" style="width:100%; margin-top:8px; padding:8px; border-radius:8px; border:1px solid #ddd;" placeholder="Ваш ответ..."></textarea>' +
-                '<button onclick="submitHomework(\'' + courseId + '\',\'' + lesson.id + '\',\'' + lesson.title + '\')">Отправить на проверку</button>' +
-                '</div>' +
-                '<div style="margin-top:10px; font-size:12px; color:#888;">⏱ Время на уроке: ' + formatTime(timeSpent) + (isCompleted ? ' ✅ Пройдено' : '') + '</div>' +
-                (!isCompleted ? '<button class="success" style="margin-top:5px;" onclick="markCurrentLessonComplete(\'' + courseId + '\',\'' + lesson.id + '\')">✅ Отметить урок пройденным</button>' : '') +
-                '</div>';
+            let fileHtml = l.fileUrl ? '<div class="lesson-file"><span>📎</span><a href="' + l.fileUrl + '" target="_blank" style="color:#667eea;">Открыть файл</a></div>' : '';
+            lessonsHtml += '<div class="lesson-item"><strong>' + (i+1) + '. ' + l.title + '</strong><p>' + l.content + '</p>' + videoHtml + fileHtml + '<div class="homework-box"><strong>📝 ДЗ:</strong><br>' + l.homework + '<textarea id="hw_' + l.id + '" rows="3" style="width:100%; margin-top:8px; padding:8px; border-radius:12px; border:1px solid #ddd;" placeholder="Ваш ответ..."></textarea><button onclick="submitHomework(\'' + courseId + '\',\'' + l.id + '\',\'' + l.title + '\')">Отправить</button></div><div style="margin-top:10px; font-size:12px; color:#888;">⏱ Время: ' + formatTime(timeSpent) + (isCompleted ? ' ✅ Пройдено' : '') + '</div>' + (!isCompleted ? '<button class="success" style="margin-top:5px;" onclick="markCurrentLessonComplete(\'' + courseId + '\',\'' + l.id + '\')">✅ Отметить пройденным</button>' : '') + '</div>';
         }
-        modal.innerHTML = '<div class="modal-content"><div class="flex-between"><h2>' + course.icon + ' ' + course.title + '</h2><span style="cursor:pointer;font-size:24px;" onclick="closeCourseModal(\'' + courseId + '\')">&times;</span></div><p>' + course.desc + '</p>' + lessonsHtml + '</div>';
+        modal.innerHTML = '<div class="modal-content"><div class="flex-between"><h2>' + course.icon + ' ' + course.title + '</h2><span style="cursor:pointer;font-size:28px;" onclick="closeCourseModal(\'' + courseId + '\')">&times;</span></div><p>' + course.desc + '</p>' + lessonsHtml + '</div>';
         document.body.appendChild(modal);
-        
-        var startTime = Date.now();
-        activeTimers[courseId] = setInterval(function() {
+        let startTime = Date.now();
+        activeTimers[courseId] = setInterval(() => {
             if (document.querySelector('.modal.open')) {
-                var elapsed = Math.floor((Date.now() - startTime) / 1000);
-                if (elapsed >= 15) {
-                    updateLessonTime(courseId, 'total', 15);
-                    startTime = Date.now();
-                }
-            } else {
-                clearInterval(activeTimers[courseId]);
-                delete activeTimers[courseId];
-            }
+                let elapsed = Math.floor((Date.now() - startTime) / 1000);
+                if (elapsed >= 15) { updateLessonTime(courseId, 'total', 15); startTime = Date.now(); }
+            } else { clearInterval(activeTimers[courseId]); delete activeTimers[courseId]; }
         }, 15000);
     }
     
     function closeCourseModal(courseId) {
         if (activeTimers[courseId]) clearInterval(activeTimers[courseId]);
         delete activeTimers[courseId];
-        var modal = document.querySelector('.modal.open');
+        let modal = document.querySelector('.modal.open');
         if (modal) modal.remove();
     }
     
@@ -405,62 +581,36 @@
     }
 
     function submitHomework(courseId, lessonId, lessonTitle) {
-        var answer = document.getElementById('hw_' + lessonId).value;
+        let answer = document.getElementById('hw_' + lessonId).value;
         if (!answer) { alert('Напишите ответ'); return; }
-        var users = getUsers();
-        var idx = users.findIndex(function(u) { return u.id === currentUser.id; });
+        let users = getUsers();
+        let idx = users.findIndex(u => u.id === currentUser.id);
         if (!users[idx].homeworks) users[idx].homeworks = [];
-        if (users[idx].homeworks.find(function(h) { return h.lessonId === lessonId; })) { showNotification('Вы уже отправляли это задание', 'warning'); return; }
+        if (users[idx].homeworks.find(h => h.lessonId === lessonId)) { showNotification('Вы уже отправляли', 'warning'); return; }
         users[idx].homeworks.push({ id: Date.now().toString(), courseId: courseId, lessonId: lessonId, lessonTitle: lessonTitle, answer: answer, status: 'pending', studentName: currentUser.name, studentId: currentUser.id });
         saveUsers(users);
-        showNotification('ДЗ отправлено на проверку!');
+        showNotification('ДЗ отправлено!');
     }
 
     // ========== ДЗ НА ПРОВЕРКУ ==========
     function renderHomeworks(main) {
-        var users = getUsers();
-        var all = [];
-        for (var i = 0; i < users.length; i++) {
-            var u = users[i];
-            if (u.homeworks) {
-                for (var j = 0; j < u.homeworks.length; j++) {
-                    var h = u.homeworks[j];
-                    all.push({ id: h.id, studentName: u.name, lessonTitle: h.lessonTitle, answer: h.answer, status: h.status, studentId: u.id });
-                }
-            }
-        }
-        var list = (currentUser.role === 'admin') ? all : all.filter(function(h) { return h.studentId === currentUser.id; });
-        if (list.length === 0) {
-            main.innerHTML = '<div class="card"><div class="card-header">📝 Домашние задания</div><p>Нет заданий</p></div>';
-            return;
-        }
-        var html = '<div class="card"><div class="card-header">📝 Домашние задания</div>';
-        for (var i = 0; i < list.length; i++) {
-            var h = list[i];
-            var statusText = (h.status === 'pending' ? '⏳ На проверке' : (h.status === 'done' ? '✅ Принято' : '❌ Отклонено'));
-            html += '<div class="lesson-item"><strong>' + h.studentName + ' — ' + h.lessonTitle + '</strong><p><strong>Ответ:</strong> ' + h.answer + '</p><p><strong>Статус:</strong> ' + statusText + '</p>';
-            if (currentUser.role === 'admin' && h.status === 'pending') {
-                html += '<div style="margin-top:10px;"><button class="success" onclick="grade(\'' + h.id + '\',\'done\')">✅ Принять</button><button class="danger" onclick="grade(\'' + h.id + '\',\'rejected\')">❌ Отклонить</button></div>';
-            }
-            html += '</div>';
+        let users = getUsers();
+        let all = [];
+        for (let i = 0; i < users.length; i++) if (users[i].homeworks) for (let j = 0; j < users[i].homeworks.length; j++) all.push({ ...users[i].homeworks[j], studentName: users[i].name });
+        let list = currentUser.role === 'admin' ? all : all.filter(h => h.studentId === currentUser.id);
+        if (list.length === 0) { main.innerHTML = '<div class="card"><div class="card-header">📝 Домашние задания</div><p>Нет заданий</p></div>'; return; }
+        let html = '<div class="card"><div class="card-header">📝 Домашние задания</div>';
+        for (let i = 0; i < list.length; i++) {
+            let h = list[i];
+            html += '<div class="lesson-item"><strong>' + h.studentName + ' — ' + h.lessonTitle + '</strong><p><strong>Ответ:</strong> ' + h.answer + '</p><p><strong>Статус:</strong> ' + (h.status === 'pending' ? '⏳ На проверке' : (h.status === 'done' ? '✅ Принято' : '❌ Отклонено')) + '</p>' + (currentUser.role === 'admin' && h.status === 'pending' ? '<div style="margin-top:10px;"><button class="success" onclick="grade(\'' + h.id + '\',\'done\')">✅ Принять</button><button class="danger" onclick="grade(\'' + h.id + '\',\'rejected\')">❌ Отклонить</button></div>' : '') + '</div>';
         }
         html += '</div>';
         main.innerHTML = html;
     }
     
     function grade(hwId, status) {
-        var users = getUsers();
-        for (var i = 0; i < users.length; i++) {
-            if (users[i].homeworks) {
-                for (var j = 0; j < users[i].homeworks.length; j++) {
-                    if (users[i].homeworks[j].id === hwId) {
-                        users[i].homeworks[j].status = status;
-                        if (status === 'done') checkAchievements(users[i].id);
-                        break;
-                    }
-                }
-            }
-        }
+        let users = getUsers();
+        for (let i = 0; i < users.length; i++) if (users[i].homeworks) for (let j = 0; j < users[i].homeworks.length; j++) if (users[i].homeworks[j].id === hwId) { users[i].homeworks[j].status = status; if (status === 'done') checkAchievements(users[i].id); break; }
         saveUsers(users);
         showNotification(status === 'done' ? 'ДЗ принято!' : 'ДЗ отклонено');
         setView('homeworks');
@@ -469,194 +619,143 @@
     // ========== АДМИН-ПАНЕЛЬ ==========
     function renderAdmin(main) {
         if (currentUser.role !== 'admin') { setView('profile'); return; }
-        var courses = getCourses();
-        var users = getUsers();
-        var coursesHtml = '';
-        for (var i = 0; i < courses.length; i++) {
-            var c = courses[i];
-            var lessonsHtml = '';
-            for (var j = 0; j < c.lessons.length; j++) {
-                lessonsHtml += '<div style="font-size:13px; margin:5px 0;">📖 ' + c.lessons[j].title + ' <span style="color:red;cursor:pointer;" onclick="deleteLesson(\'' + c.id + '\',\'' + c.lessons[j].id + '\')">❌</span></div>';
-            }
-            coursesHtml += '<div class="course-card"><div style="font-size:40px;">' + c.icon + '</div><div class="course-title">' + c.title + '</div><p style="font-size:12px;">' + c.desc + '</p><button onclick="editCourse(\'' + c.id + '\')">✏️ Ред.</button><button class="danger" onclick="deleteCourse(\'' + c.id + '\')">🗑 Удалить курс</button><hr><strong>Уроки:</strong>' + lessonsHtml + '<div style="margin-top:10px;"><input type="text" id="lessonTitle_' + c.id + '" placeholder="Название урока" style="width:100%; margin-bottom:5px;"><textarea id="lessonContent_' + c.id + '" rows="2" placeholder="Содержание урока" style="width:100%; margin-bottom:5px;"></textarea><textarea id="lessonHw_' + c.id + '" rows="2" placeholder="Домашнее задание" style="width:100%; margin-bottom:5px;"></textarea><input type="text" id="lessonVideo_' + c.id + '" placeholder="Ссылка на YouTube видео" style="width:100%; margin-bottom:5px;"><input type="text" id="lessonFile_' + c.id + '" placeholder="Ссылка на файл (Word/PDF/Google Drive)" style="width:100%; margin-bottom:5px;"><button onclick="addLessonWithMedia(\'' + c.id + '\')">+ Добавить урок с видео/файлом</button></div></div>';
+        let courses = getCourses();
+        let coursesHtml = '';
+        for (let i = 0; i < courses.length; i++) {
+            let c = courses[i];
+            let lessonsHtml = '';
+            for (let j = 0; j < c.lessons.length; j++) lessonsHtml += '<div style="font-size:13px; margin:5px 0;">📖 ' + c.lessons[j].title + ' <span style="color:red;cursor:pointer;" onclick="deleteLesson(\'' + c.id + '\',\'' + c.lessons[j].id + '\')">❌</span></div>';
+            coursesHtml += '<div class="course-card"><div style="font-size:40px;">' + c.icon + '</div><div class="course-title">' + c.title + '</div><p style="font-size:12px;">' + c.desc + '</p><p style="font-size:13px;"><strong>Цена: ' + formatPrice(c.price) + '</strong></p><button onclick="editCourse(\'' + c.id + '\')">✏️ Ред.</button><button class="danger" onclick="deleteCourse(\'' + c.id + '\')">🗑 Удалить</button><hr><strong>Уроки:</strong>' + lessonsHtml + '<div style="margin-top:10px;"><input type="text" id="lessonTitle_' + c.id + '" placeholder="Название урока" style="width:100%; margin-bottom:5px; padding:10px; border-radius:10px;"><textarea id="lessonContent_' + c.id + '" rows="2" placeholder="Содержание" style="width:100%; margin-bottom:5px; padding:10px; border-radius:10px;"></textarea><textarea id="lessonHw_' + c.id + '" rows="2" placeholder="ДЗ" style="width:100%; margin-bottom:5px; padding:10px; border-radius:10px;"></textarea><input type="text" id="lessonVideo_' + c.id + '" placeholder="Ссылка на YouTube" style="width:100%; margin-bottom:5px; padding:10px; border-radius:10px;"><input type="text" id="lessonFile_' + c.id + '" placeholder="Ссылка на файл" style="width:100%; margin-bottom:5px; padding:10px; border-radius:10px;"><button onclick="addLessonWithMedia(\'' + c.id + '\')">+ Добавить урок</button></div></div>';
         }
-        var usersHtml = '';
-        for (var i = 0; i < users.length; i++) {
-            if (users[i].role === 'student') {
-                var selectOptions = '<option value="">Выберите курс</option>';
-                for (var j = 0; j < courses.length; j++) {
-                    selectOptions += '<option value="' + courses[j].id + '">' + courses[j].title + '</option>';
-                }
-                usersHtml += '<div class="user-row"><div><b>' + users[i].name + '</b><br>' + users[i].email + '</div><div><select id="select_' + users[i].id + '">' + selectOptions + '</select><button onclick="grantAccess(\'' + users[i].id + '\')">📖 Выдать доступ</button><button class="danger" onclick="revokeAccess(\'' + users[i].id + '\')">🚫 Забрать всё</button></div></div>';
-            }
-        }
-        main.innerHTML = '<div class="card"><div class="card-header">➕ Создать курс</div>' +
-            '<div class="form-group"><input type="text" id="newTitle" placeholder="Название курса"></div>' +
-            '<div class="form-group"><textarea id="newDesc" rows="2" placeholder="Описание курса"></textarea></div>' +
-            '<div class="form-group"><input type="text" id="newIcon" placeholder="Иконка эмодзи" value="📚"></div>' +
-            '<button onclick="addCourse()">Создать курс</button></div>' +
-            '<div class="card"><div class="card-header">📚 Управление курсами</div><div class="courses-grid">' + coursesHtml + '</div></div>' +
-            '<div class="card"><div class="card-header">👥 Управление доступом учеников</div>' + usersHtml + '</div>';
+        main.innerHTML = '<div class="card"><div class="card-header">➕ Создать курс</div><div class="form-group"><input type="text" id="newTitle" placeholder="Название"></div><div class="form-group"><textarea id="newDesc" rows="2" placeholder="Описание"></textarea></div><div class="form-group"><input type="text" id="newPrice" placeholder="Цена в рублях" value="5000"></div><div class="form-group"><input type="text" id="newIcon" placeholder="Иконка" value="📚"></div><button onclick="addCourse()">Создать курс</button></div><div class="card"><div class="card-header">📚 Управление курсами</div><div class="courses-grid">' + coursesHtml + '</div></div>';
     }
     
     function addLessonWithMedia(courseId) {
-        var title = document.getElementById('lessonTitle_' + courseId).value;
+        let title = document.getElementById('lessonTitle_' + courseId).value;
         if (!title) { alert('Введите название урока'); return; }
-        var courses = getCourses();
-        var course = courses.find(function(c) { return c.id === courseId; });
-        var videoUrl = document.getElementById('lessonVideo_' + courseId).value || '';
-        if (videoUrl.indexOf('youtu.be/') !== -1) {
-            videoUrl = videoUrl.replace('youtu.be/', 'www.youtube.com/watch?v=');
-        }
-        course.lessons.push({ 
-            id: Date.now().toString(), 
-            title: title, 
-            content: document.getElementById('lessonContent_' + courseId).value || 'Содержание урока', 
-            homework: document.getElementById('lessonHw_' + courseId).value || 'Домашнее задание',
-            videoUrl: videoUrl,
-            fileUrl: document.getElementById('lessonFile_' + courseId).value || ''
-        });
+        let courses = getCourses();
+        let course = courses.find(c => c.id === courseId);
+        let videoUrl = document.getElementById('lessonVideo_' + courseId).value || '';
+        if (videoUrl.indexOf('youtu.be/') !== -1) videoUrl = videoUrl.replace('youtu.be/', 'www.youtube.com/watch?v=');
+        course.lessons.push({ id: Date.now().toString(), title: title, content: document.getElementById('lessonContent_' + courseId).value || 'Содержание', homework: document.getElementById('lessonHw_' + courseId).value || 'ДЗ', videoUrl: videoUrl, fileUrl: document.getElementById('lessonFile_' + courseId).value || '' });
         saveCourses(courses);
         document.getElementById('lessonTitle_' + courseId).value = '';
         document.getElementById('lessonContent_' + courseId).value = '';
         document.getElementById('lessonHw_' + courseId).value = '';
         document.getElementById('lessonVideo_' + courseId).value = '';
         document.getElementById('lessonFile_' + courseId).value = '';
-        showNotification('Урок с видео добавлен!');
+        showNotification('Урок добавлен!');
         setView('admin');
     }
     
     function addCourse() {
-        var title = document.getElementById('newTitle').value;
+        let title = document.getElementById('newTitle').value;
         if (!title) { alert('Введите название'); return; }
-        var courses = getCourses();
-        courses.push({ id: Date.now().toString(), title: title, desc: document.getElementById('newDesc').value, icon: document.getElementById('newIcon').value || '📚', lessons: [] });
+        let courses = getCourses();
+        let price = parseInt(document.getElementById('newPrice').value) || 0;
+        courses.push({ id: Date.now().toString(), title: title, desc: document.getElementById('newDesc').value, price: price, icon: document.getElementById('newIcon').value || '📚', lessons: [] });
         saveCourses(courses);
         showNotification('Курс создан');
         setView('admin');
     }
     function editCourse(id) {
-        var courses = getCourses();
-        var c = courses.find(function(crs) { return crs.id === id; });
-        var newTitle = prompt('Новое название', c.title);
+        let courses = getCourses();
+        let c = courses.find(c => c.id === id);
+        let newTitle = prompt('Новое название', c.title);
+        let newPrice = prompt('Новая цена', c.price);
         if (newTitle) c.title = newTitle;
+        if (newPrice) c.price = parseInt(newPrice);
         saveCourses(courses);
         setView('admin');
     }
     function deleteCourse(id) {
-        if (confirm('Удалить курс?')) { var courses = getCourses(); courses = courses.filter(function(c) { return c.id !== id; }); saveCourses(courses); showNotification('Курс удален'); setView('admin'); }
+        if (confirm('Удалить курс?')) { let courses = getCourses(); courses = courses.filter(c => c.id !== id); saveCourses(courses); showNotification('Курс удален'); setView('admin'); }
     }
     function deleteLesson(courseId, lessonId) {
-        if (confirm('Удалить урок?')) { var courses = getCourses(); var course = courses.find(function(c) { return c.id === courseId; }); course.lessons = course.lessons.filter(function(l) { return l.id !== lessonId; }); saveCourses(courses); showNotification('Урок удален'); setView('admin'); }
+        if (confirm('Удалить урок?')) { let courses = getCourses(); let course = courses.find(c => c.id === courseId); course.lessons = course.lessons.filter(l => l.id !== lessonId); saveCourses(courses); showNotification('Урок удален'); setView('admin'); }
     }
+
+    // ========== УЧЕНИКИ С ОПЛАТАМИ ==========
+    function renderStudents(main) {
+        if (currentUser.role !== 'admin') { setView('profile'); return; }
+        let users = getUsers();
+        let courses = getCourses();
+        let students = users.filter(u => u.role === 'student');
+        let html = '<div class="card"><div class="card-header">👥 Ученики и оплаты</div>';
+        for (let i = 0; i < students.length; i++) {
+            let s = students[i];
+            let totalPaid = s.payments ? s.payments.reduce((sum, p) => sum + p.amount, 0) : 0;
+            html += '<div style="border:1px solid #e0e0e0; border-radius:16px; padding:15px; margin-bottom:15px;">' +
+                '<div class="flex-between"><h3>' + s.name + '</h3><span class="stat-badge">' + s.email + '</span></div>' +
+                '<p><strong>Всего оплачено:</strong> ' + formatPrice(totalPaid) + '</p>' +
+                '<p><strong>Курсов куплено:</strong> ' + (s.courses ? s.courses.length : 0) + '</p>' +
+                '<details style="margin-top:10px;"><summary style="cursor:pointer; color:#667eea;">💰 История платежей</summary>';
+            if (s.payments && s.payments.length > 0) {
+                for (let j = 0; j < s.payments.length; j++) {
+                    html += '<div style="padding:8px; border-bottom:1px solid #eee;">📅 ' + s.payments[j].date + ' — ' + s.payments[j].course + ': ' + formatPrice(s.payments[j].amount) + '</div>';
+                }
+            } else { html += '<p>Нет платежей</p>'; }
+            html += '</details><div style="margin-top:10px;"><select id="grantSelect_' + s.id + '"><option value="">Выберите курс</option>';
+            for (let j = 0; j < courses.length; j++) html += '<option value="' + courses[j].id + '">' + courses[j].title + ' (' + formatPrice(courses[j].price) + ')</option>';
+            html += '</select><button onclick="grantAccess(\'' + s.id + '\')">📖 Выдать доступ</button><button class="danger" onclick="revokeAccess(\'' + s.id + '\')">🚫 Забрать всё</button></div></div>';
+        }
+        html += '</div>';
+        main.innerHTML = html;
+    }
+    
     function grantAccess(userId) {
-        var select = document.getElementById('select_' + userId);
-        var courseId = select.value;
+        let select = document.getElementById('grantSelect_' + userId);
+        let courseId = select.value;
         if (!courseId) { alert('Выберите курс'); return; }
-        var users = getUsers();
-        var user = users.find(function(u) { return u.id === userId; });
+        let courses = getCourses();
+        let course = courses.find(c => c.id === courseId);
+        let users = getUsers();
+        let user = users.find(u => u.id === userId);
         if (!user.courses) user.courses = [];
-        if (user.courses.indexOf(courseId) === -1) { user.courses.push(courseId); saveUsers(users); checkAchievements(userId); showNotification('Доступ выдан'); setView('admin'); } 
-        else { showNotification('Уже есть', 'warning'); }
+        if (user.courses.indexOf(courseId) === -1) {
+            user.courses.push(courseId);
+            if (!user.payments) user.payments = [];
+            user.payments.push({ date: new Date().toISOString().split('T')[0], amount: course.price, course: course.title });
+            saveUsers(users);
+            checkAchievements(userId);
+            showNotification('Доступ выдан и оплата добавлена');
+            setView('students');
+        } else { showNotification('Уже есть', 'warning'); }
     }
+    
     function revokeAccess(userId) {
-        if (confirm('Забрать все доступы?')) { var users = getUsers(); var user = users.find(function(u) { return u.id === userId; }); user.courses = []; saveUsers(users); showNotification('Доступы отозваны'); setView('admin'); }
+        if (confirm('Забрать все доступы?')) {
+            let users = getUsers();
+            let user = users.find(u => u.id === userId);
+            user.courses = [];
+            saveUsers(users);
+            showNotification('Доступы отозваны');
+            setView('students');
+        }
     }
 
     // ========== СТАТИСТИКА ==========
     function renderStatistics(main) {
         if (currentUser.role !== 'admin') { setView('profile'); return; }
-        var users = getUsers();
-        var courses = getCourses();
-        var students = users.filter(function(u) { return u.role === 'student'; });
-        
-        var totalStudents = students.length;
-        var totalPurchases = 0;
-        var totalHomeworks = 0;
-        var totalTimeAll = 0;
-        for (var i = 0; i < students.length; i++) {
-            totalPurchases += students[i].courses ? students[i].courses.length : 0;
-            totalHomeworks += students[i].homeworks ? students[i].homeworks.length : 0;
-            if (students[i].stats) {
-                for (var cId in students[i].stats) {
-                    totalTimeAll += students[i].stats[cId].totalTime || 0;
-                }
-            }
+        let users = getUsers();
+        let courses = getCourses();
+        let students = users.filter(u => u.role === 'student');
+        let totalRevenue = 0;
+        for (let i = 0; i < students.length; i++) {
+            if (students[i].payments) totalRevenue += students[i].payments.reduce((sum, p) => sum + p.amount, 0);
         }
-        
-        var studentsHtml = '';
-        for (var i = 0; i < students.length; i++) {
-            var student = students[i];
-            var totalTime = 0;
-            var completedLessons = 0;
-            var totalLessons = 0;
-            if (student.stats) {
-                for (var cId in student.stats) {
-                    totalTime += student.stats[cId].totalTime || 0;
-                    if (student.stats[cId].lessons) {
-                        for (var lId in student.stats[cId].lessons) {
-                            if (student.stats[cId].lessons[lId].completed) completedLessons++;
-                        }
-                    }
-                }
-            }
-            if (student.courses) {
-                for (var j = 0; j < student.courses.length; j++) {
-                    var course = courses.find(function(c) { return c.id === student.courses[j]; });
-                    if (course) totalLessons += course.lessons.length;
-                }
-            }
-            var progressPercent = (totalLessons > 0) ? Math.round(completedLessons / totalLessons * 100) : 0;
-            var detailsHtml = '';
-            if (student.courses) {
-                for (var j = 0; j < student.courses.length; j++) {
-                    var course = courses.find(function(c) { return c.id === student.courses[j]; });
-                    if (course) {
-                        var courseStats = student.stats ? student.stats[course.id] : null;
-                        var courseTime = courseStats ? courseStats.totalTime || 0 : 0;
-                        var courseCompleted = 0;
-                        if (courseStats && courseStats.lessons) {
-                            for (var lId in courseStats.lessons) {
-                                if (courseStats.lessons[lId].completed) courseCompleted++;
-                            }
-                        }
-                        var courseProgress = (course.lessons.length > 0) ? (courseCompleted / course.lessons.length * 100) : 0;
-                        detailsHtml += '<div style="margin-top:10px; padding:10px; background:#f8f9fa; border-radius:8px;">' +
-                            '<strong>' + course.icon + ' ' + course.title + '</strong>' +
-                            '<div>⏱ Время: ' + formatTime(courseTime) + '</div>' +
-                            '<div>📖 Уроков: ' + courseCompleted + '/' + course.lessons.length + '</div>' +
-                            '<div class="progress-bar"><div class="progress-fill" style="width: ' + courseProgress + '%"></div></div>' +
-                            '</div>';
-                    }
-                }
-            }
-            studentsHtml += '<div style="border:1px solid #e0e0e0; border-radius:12px; padding:15px; margin-bottom:15px;">' +
-                '<div class="flex-between"><h3>' + student.name + '</h3><span class="stat-badge">' + student.email + '</span></div>' +
-                '<div class="stats-grid" style="margin-top:10px;">' +
-                '<div class="stats-card"><div class="stats-number">' + (student.courses ? student.courses.length : 0) + '</div><div class="stats-label">Курсов</div></div>' +
-                '<div class="stats-card"><div class="stats-number">' + completedLessons + '/' + totalLessons + '</div><div class="stats-label">Уроков пройдено</div></div>' +
-                '<div class="stats-card"><div class="stats-number">' + formatTime(totalTime) + '</div><div class="stats-label">Времени</div></div>' +
-                '</div>' +
-                '<div class="progress-bar"><div class="progress-fill" style="width: ' + progressPercent + '%"></div></div>' +
-                '<p style="font-size:12px; color:#666; margin-top:10px;">Прогресс: ' + progressPercent + '%</p>' +
-                '<details style="margin-top:10px;"><summary style="cursor:pointer; color:#667eea;">📖 Подробнее по курсам</summary>' + detailsHtml + '</details>' +
-                '</div>';
-        }
-        
-        main.innerHTML = '<div class="card"><div class="flex-between"><div class="card-header">📊 Общая статистика</div></div>' +
+        main.innerHTML = '<div class="card"><div class="card-header">📊 Общая статистика</div>' +
             '<div class="stats-grid">' +
-            '<div class="stats-card"><div class="stats-number">' + totalStudents + '</div><div class="stats-label">Всего учеников</div></div>' +
-            '<div class="stats-card"><div class="stats-number">' + totalPurchases + '</div><div class="stats-label">Всего покупок курсов</div></div>' +
-            '<div class="stats-card"><div class="stats-number">' + totalHomeworks + '</div><div class="stats-label">Отправлено ДЗ</div></div>' +
-            '<div class="stats-card"><div class="stats-number">' + formatTime(totalTimeAll) + '</div><div class="stats-label">Общее время обучения</div></div>' +
-            '</div></div>' +
-            '<div class="card"><div class="card-header">📈 Детальная статистика по ученикам</div>' + studentsHtml + '</div>';
+            '<div class="stats-card"><div class="stats-number">' + students.length + '</div><div class="stats-label">Учеников</div></div>' +
+            '<div class="stats-card"><div class="stats-number">' + formatPrice(totalRevenue) + '</div><div class="stats-label">Общая выручка</div></div>' +
+            '<div class="stats-card"><div class="stats-number">' + courses.length + '</div><div class="stats-label">Курсов</div></div>' +
+            '<div class="stats-card"><div class="stats-number">' + students.reduce((sum, s) => sum + (s.homeworks ? s.homeworks.length : 0), 0) + '</div><div class="stats-label">ДЗ отправлено</div></div>' +
+            '</div></div>';
     }
 
     // ========== ЗАПУСК ==========
-    var saved = sessionStorage.getItem('tp_user');
-    if (saved) { currentUser = JSON.parse(saved); renderApp(); } 
-    else { renderAuth(); }
+    let saved = sessionStorage.getItem('tp_user');
+    if (saved) { currentUser = JSON.parse(saved); renderApp(); } else { renderAuth(); }
 </script>
 </body>
 </html>
